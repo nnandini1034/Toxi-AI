@@ -74,6 +74,7 @@
 
         <div class="flex flex-wrap justify-center gap-2.5 mb-8">
             <button onclick="switchTab('analyzer')" id="tab-analyzer" class="px-4 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md transition-all duration-200">🔍 Substance Analyzer</button>
+            <button onclick="switchTab('descriptor')" id="tab-descriptor" class="px-4 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200">❓ Unknown Descriptor</button>
             <button onclick="switchTab('identifier')" id="tab-identifier" class="px-4 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200">🤒 Symptom Identifier</button>
             <button onclick="switchTab('scanner')" id="tab-scanner" class="px-4 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200">📷 Label Scanner</button>
             <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2.5 font-bold text-xs uppercase tracking-wider rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200">🎮 Safety Quiz</button>
@@ -110,9 +111,41 @@
             </form>
         </div>
 
+        <div id="form-descriptor" class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hidden transition-all duration-300">
+            <h2 class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-2">❓ Describe Unknown Substance</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mb-6">Describe anomalous textures, contexts, or fluids to safely map cross-matches and critical suggestions.</p>
+            <form onsubmit="submitForm(event, '/api/describe_unknown')">
+                <input type="hidden" name="mode" value="descriptor">
+                <div class="mb-5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Substance Physical Description</label>
+                    <textarea name="description" rows="3" placeholder="e.g., oily sweet clear liquid from garage shelf, thick blue bubbling powder" required class="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Exposure Duration</label>
+                        <input type="text" name="duration" placeholder="e.g., Instant touch, 10 minutes" required class="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Contact Method</label>
+                        <select name="contact_method" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+                            <option value="Skin contact">Skin contact</option>
+                            <option value="Inhaled">Inhaled</option>
+                            <option value="Swallowed">Swallowed</option>
+                            <option value="Eye contact">Eye contact</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Symptoms Experienced <span class="text-slate-400 lowercase font-normal">(Optional)</span></label>
+                    <input type="text" name="symptoms" placeholder="e.g., mild skin irritation, dizziness, none" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg hover:shadow-xl active:scale-[0.99]">Generate Suggestions & Next Steps</button>
+            </form>
+        </div>
+
         <div id="form-identifier" class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hidden transition-all duration-300">
             <h2 class="text-xl font-extrabold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2">🤒 Identify Hazard by Symptoms</h2>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mb-6">Cross-reference physical manifestations with potential toxic household threats.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mb-6">Review system reactions to map alternative chemical scenarios manually.</p>
             <form onsubmit="submitForm(event, '/api/identify')">
                 <input type="hidden" name="mode" value="identifier">
                 <div class="mb-5">
@@ -305,7 +338,7 @@
                     } else if (level === "high") {
                         colorClass = "text-red-600 dark:text-red-500";
                     }
-                    const cleanRiskText = trimmed.replace(/\*\*/g, "");
+                    const cleanRiskText = trimmed.replace(/\*\ Third party /g, "").replace(/\*\*/g, "");
                     return `<div class="mt-5 mb-2 font-black text-sm tracking-wide ${colorClass}">${cleanRiskText}</div>`;
                 }
 
@@ -336,7 +369,7 @@
         }
 
         function switchTab(mode) {
-            const tabs = ['analyzer', 'identifier', 'scanner', 'quiz', 'lab', 'overdose', 'eco_health'];
+            const tabs = ['analyzer', 'descriptor', 'identifier', 'scanner', 'quiz', 'lab', 'overdose', 'eco_health'];
             const resultBox = document.getElementById('result-box');
             
             tabs.forEach(t => {
@@ -362,7 +395,6 @@
         function loadQuizQuestion() {
             const displayFrame = document.getElementById('quiz-playable-zone');
 
-            // Handle the completion view transition smoothly
             if (currentQuestionIndex >= QUIZ_QUESTIONS.length) {
                 displayFrame.innerHTML = `
                     <div class="text-6xl mb-4 animate-bounce">🏆</div>
@@ -373,7 +405,6 @@
                 return;
             }
 
-            // Self-Healing layout validation layer: Regenerates nodes if cleared by completion screen HTML string overrides
             if (!document.getElementById('quiz-symbol-avatar')) {
                 displayFrame.innerHTML = `
                     <div id="quiz-symbol-avatar" class="text-7xl mb-4 mt-2 filter drop-shadow-md">☠️</div>
@@ -515,6 +546,10 @@
             }
             if (dataObject.mode === "identifier") {
                 resultText.innerHTML = "❌ Symptom Identification analysis modeling requires active cloud database streaming infrastructure parameters.";
+                return;
+            }
+            if (dataObject.mode === "descriptor") {
+                resultText.innerHTML = "❌ Unknown substance physical cross-reference modeling requires active cloud connection assets.";
                 return;
             }
             if (dataObject.mode === "overdose") {

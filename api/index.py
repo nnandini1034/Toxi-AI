@@ -58,6 +58,45 @@ def analyze_substance():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+@app.route('/api/describe_unknown', methods=['POST'])
+def describe_unknown_substance():
+    if not groq_client:
+        return jsonify({"success": False, "error": "Groq API key missing configuration."})
+    
+    payload = request.get_json() or {}
+    description = payload.get('description', 'Unknown profile')
+    duration = payload.get('duration', 'Unknown')
+    contact_method = payload.get('contact_method', 'Unknown')
+    symptoms = payload.get('symptoms', 'None reported')
+
+    system_prompt = (
+        "You are an educational first-aid assistant specializing in unknown household hazard assessments.\n\n"
+        "Analyze the visual descriptor details, exposure time metrics, contact pathway, and physical symptoms to "
+        "provide a list of likely substance identity suggestions along with tactical safe steps for each hypothetical matches.\n\n"
+        "Organize your evaluation using these precise major headers:\n"
+        "**Potential Substance Suggestions**\n"
+        "**Recommended Next Steps for Each Suggestion**\n"
+        "**Risk Level Assessment**\n\n"
+        "Inside the Risk Level Assessment section, include a line stating exactly the risk level using one of these formats:\n"
+        "- Risk Level: High\n"
+        "- Risk Level: Medium\n"
+        "- Risk Level: Low"
+    )
+    user_message = f"Description: {description}\nExposure Duration: {duration}\nContact Method: {contact_method}\nSymptoms: {symptoms}"
+
+    try:
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            model="llama-3.1-8b-instant",
+            temperature=0.2
+        )
+        return jsonify({"success": True, "data": chat_completion.choices[0].message.content})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 @app.route('/api/identify', methods=['POST'])
 def identify_symptoms():
     if not groq_client:
